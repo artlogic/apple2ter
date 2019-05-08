@@ -10,14 +10,16 @@ import Data.Word
 proDosDisk = 0x0138b0034c32a186
 dos33Disk = 0x01a527c909d018a5
 
-diskType :: Word64 -> String
+data DiskType = ProDosDisk | Dos33Disk deriving Show
+
+diskType :: Word64 -> Maybe DiskType
 diskType magicNumber
-  | magicNumber == proDosDisk = "ProDOS"
-  | magicNumber == dos33Disk = "DOS 3.3"
-  | otherwise = "Unknown"
+  | magicNumber == proDosDisk = Just ProDosDisk
+  | magicNumber == dos33Disk = Just Dos33Disk
+  | otherwise = Nothing
 
 readDisk :: FilePath -> IO ()
 readDisk path = do
   rawBytes <- BL.readFile path
   let magicNumber = runGet getWord64be rawBytes
-  putStrLn $ diskType magicNumber
+  print $ diskType magicNumber
